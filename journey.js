@@ -77,7 +77,7 @@ function journeyToMoon(n, astronaut) {
     var result = 0;
     for(var i = 0, count = countries.length; i < count; i++) {
         for(var j = i + 1; j < count; j++) {
-            result += combineCountries(countries[i], countries[j]);
+            result += combineCountries(countries[i].length, countries[j].length);
         }
     }
     return result;
@@ -114,11 +114,30 @@ function journeyToMoon(n, astronaut) {
         return fact(nFirst) / fact(nLast) / fact(nFirst - nLast);
     }
 
+    function binomial(n, k) {
+        return fact(n) / (fact(k) * fact(n - k));
+    }
+
+    function factStirling(x) {
+        return Math.sqrt(2 * Math.PI * x) * Math.pow(x / Math.E, x);
+    }
+
     function fact(x) {
         return 0 === x ? 1 : x * fact(x-1);
     }
+
 }
 
+// https://en.wikipedia.org/wiki/Methods_of_computing_square_roots#Babylonian_method
+function sqrt(n, precision) {
+    var len = n.toString().length;
+    var a = n.toString().substr(0, len % 2 ? 1 : 2);
+    var x = bigInt(a < 10 ? 2 : 6).multiply(bigInt[10].pow((len % 2 ? len - 1 : len) / 2));
+    for(var i = 0, count = precision || n.toString().length + 2; i < count; i++) {
+        x = (n.divide(x).add(x)).divide(2);
+    }
+    return x;
+}
 
 function main() {
     var n_temp = readLine().split(' ');

@@ -69,11 +69,8 @@ function readLine() {
 
 /////////////// ignore above this line ////////////////////
 function journeyToMoon(n, astronaut) {
-    var AA = new Array(n);
-    var CC = [], CID;
-    for(var i = 0, len = astronaut.length; i < len; i++) {
-        var a1 = astronaut[i][0];
-        var a2 = astronaut[i][1];
+    for(var i = 0, len = astronaut.length, AA = new Array(n), CC = [], CID; i < len; i++) {
+        [a1, a2] = astronaut[i];
         CID = (0 === AA[a1] || 0 === AA[a2]) ? 0 : (AA[a1] || AA[a2] || CC.length);
         CC[CID] = ~~CC[CID] + (CC[CID] ? 1 : 2);
         AA[a1] = CID;

@@ -60,7 +60,7 @@ process.stdin.on('data', function (data) {
 
 process.stdin.on('end', function () {
     input_stdin_array = input_stdin.split("\n");
-    main();    
+    main();
 });
 
 function readLine() {
@@ -68,93 +68,29 @@ function readLine() {
 }
 
 /////////////// ignore above this line ////////////////////
-
-// journeyToMoon(5, [[5, 3], [0, 1], [2, 3], [0, 4]])
-// 6
 function journeyToMoon(n, astronaut) {
-    var countries = prepareCountries(astronaut);
-    return countries;
-    var result = 0;
-    for(var i = 0, count = countries.length; i < count; i++) {
-        for(var j = i + 1; j < count; j++) {
-            result += combineCountries(countries[i].length, countries[j].length);
-        }
-    }
-    return result;
-
-    function prepareCountries(pairs) {
-        var countries = [];
-        pairs.forEach(function(pair) {
-            inc(pair[0], pair[1]);
-        });
-        return countries;
-
-        function inc(a1, a2) {
-            var idx1 = find(a1);
-            var idx2 = find(a2);
-            if (-1 !== idx1 && -1 !== idx2) {
-                countries[Math.max(idx1, idx2)].push(astronaut);
-            } else {
-                countries.push([astronaut]);
-            }
-        }
-
-        function find(ast) {
-            return countries.reduce(function(c, country) {
-                var idx = country.indexOf(ast);
-                if (idx > -1) c = idx;
-                return c;
-            }, -1);
-        }
+    var AA = new Array(n);
+    var CC = [], CID;
+    for(var i = 0, len = astronaut.length; i < len; i++) {
+        var a1 = astronaut[i][0];
+        var a2 = astronaut[i][1];
+        CID = (0 === AA[a1] || 0 === AA[a2]) ? 0 : (AA[a1] || AA[a2] || CC.length);
+        CC[CID] = ~~CC[CID] + (CC[CID] ? 1 : 2);
+        AA[a1] = CID;
+        AA[a2] = CID;
     }
 
-    function combineCountries(n1, n2) {
-        var nFirst = Math.max(n1, n2),
-        nLast = Math.min(n1, n2);
-        return fact(nFirst) / fact(nLast) / fact(nFirst - nLast);
+    // https://en.wikipedia.org/wiki/Binomial_coefficient#Multiplicative_formula
+    // n!/2*(n - 2)! - n0!/2(n0 - 2)! - n1!/2(n1 - 2)! - ...
+    // ~=
+    // (n*(n-1) - n0*(n0-1) - n1*(n1-1) - ...)/2
+    function P_Nby2(n) {
+        return n * (n - 1) / 2;
     }
-}
 
-function binomial(n, k) {
-    return fact(n) / (fact(k) * fact(n - k));
-}
-
-function factStirling(x) {
-    return Math.sqrt(2 * Math.PI * x) * Math.pow(x / Math.E, x);
-}
-
-function factStirlingBig(x) {
-    var pdi = 1e16, prc = bigInt(pdi), shift = 8;
-    return sqrtBig(
-            x.multiply(bigInt(2 * Math.PI * pdi)).divide(prc), shift
-        ).multiply(
-            x.multiply(prc).divide(bigInt(Math.E * pdi)).pow(x)
-        ).divide(bigInt(Math.pow(10, shift / 2)));
-}
-
-function factBig(x) {
-    var r = x, i = 0;
-    while((x = x.prev()).gt(bigInt[1])) {
-        r = r.multiply(x);
-    }
-    return r;
-}
-
-function fact(x) {
-    return 0 === x ? 1 : x * fact(x-1);
-}
-
-// https://en.wikipedia.org/wiki/Methods_of_computing_square_roots#Babylonian_method
-function sqrtBig(n, shift) {
-    var pdi = Math.pow(10, shift || 0), prc = bigInt(pdi);
-    n = n.multiply(prc);
-    var len = n.toString().length;
-    var a = n.toString().substr(0, len % 2 ? 1 : 2);
-    var x = bigInt(a < 10 ? 2 : 6).multiply(bigInt[10].pow((len % 2 ? len - 1 : len) / 2));
-    for(var i = 0, count = n.toString().length + 2; i < count; i++) {
-        x = (n.divide(x).add(x)).divide(bigInt[2]);
-    }
-    return x;
+    return CC.reduce(function(c, count) {
+        return c - P_Nby2(count);
+    }, P_Nby2(n));
 }
 
 function main() {

@@ -113,28 +113,46 @@ function journeyToMoon(n, astronaut) {
         nLast = Math.min(n1, n2);
         return fact(nFirst) / fact(nLast) / fact(nFirst - nLast);
     }
+}
 
-    function binomial(n, k) {
-        return fact(n) / (fact(k) * fact(n - k));
+function binomial(n, k) {
+    return fact(n) / (fact(k) * fact(n - k));
+}
+
+function factStirling(x) {
+    return Math.sqrt(2 * Math.PI * x) * Math.pow(x / Math.E, x);
+}
+
+function factStirlingBig(x) {
+    var pdi = 1e16, prc = bigInt(pdi), shift = 8;
+    return sqrtBig(
+            x.multiply(bigInt(2 * Math.PI * pdi)).divide(prc), shift
+        ).multiply(
+            x.multiply(prc).divide(bigInt(Math.E * pdi)).pow(x)
+        ).divide(bigInt(Math.pow(10, shift / 2)));
+}
+
+function factBig(x) {
+    var r = x, i = 0;
+    while((x = x.prev()).gt(bigInt[1])) {
+        r = r.multiply(x);
     }
+    return r;
+}
 
-    function factStirling(x) {
-        return Math.sqrt(2 * Math.PI * x) * Math.pow(x / Math.E, x);
-    }
-
-    function fact(x) {
-        return 0 === x ? 1 : x * fact(x-1);
-    }
-
+function fact(x) {
+    return 0 === x ? 1 : x * fact(x-1);
 }
 
 // https://en.wikipedia.org/wiki/Methods_of_computing_square_roots#Babylonian_method
-function sqrt(n, precision) {
+function sqrtBig(n, shift) {
+    var pdi = Math.pow(10, shift || 0), prc = bigInt(pdi);
+    n = n.multiply(prc);
     var len = n.toString().length;
     var a = n.toString().substr(0, len % 2 ? 1 : 2);
     var x = bigInt(a < 10 ? 2 : 6).multiply(bigInt[10].pow((len % 2 ? len - 1 : len) / 2));
-    for(var i = 0, count = precision || n.toString().length + 2; i < count; i++) {
-        x = (n.divide(x).add(x)).divide(2);
+    for(var i = 0, count = n.toString().length + 2; i < count; i++) {
+        x = (n.divide(x).add(x)).divide(bigInt[2]);
     }
     return x;
 }

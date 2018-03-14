@@ -75,6 +75,8 @@ function journeyToMoon(n, astronaut) {
                 cid2 = AA[pair[1]], found2 = !isNaN(cid2);
 
             if (found1 && found2) {
+                if (cid1 === cid2) return CC;
+                if (cid1 < cid2) cid2 = [cid1, cid1 = cid2][0];
                 // Merge two countries
                 AA.forEach(function(cid, i, arr) {
                     if (cid === cid2) arr[i] = cid1;

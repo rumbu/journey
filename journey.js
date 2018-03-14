@@ -69,13 +69,29 @@ function readLine() {
 
 /////////////// ignore above this line ////////////////////
 function journeyToMoon(n, astronaut) {
-    for(var i = 0, len = astronaut.length, AA = new Array(n), CC = [], CID; i < len; i++) {
-        [a1, a2] = astronaut[i];
-        CID = (0 === AA[a1] || 0 === AA[a2]) ? 0 : (AA[a1] || AA[a2] || CC.length);
-        CC[CID] = ~~CC[CID] + (CC[CID] ? 1 : 2);
-        AA[a1] = CID;
-        AA[a2] = CID;
-    }
+    var AA = [];
+    return astronaut.reduce(function(CC, pair) {
+            var cid1 = AA[pair[0]], found1 = !isNaN(cid1),
+                cid2 = AA[pair[1]], found2 = !isNaN(cid2);
+
+            if (found1 && found2) {
+                // Merge two countries
+                AA.forEach(function(cid, i, arr) {
+                    if (cid === cid2) arr[i] = cid1;
+                });
+                CC[cid1] += CC[cid2];
+                delete CC[cid2];
+            } else if (!isNaN(pair[0]) && !isNaN(pair[1]) && pair[0] < n && pair[1] < n) {
+                // Assign a country to an astronaut(s)
+                var cid = found1 ? cid1 : found2 ? cid2 : CC.length;
+                CC[cid] = (~~CC[cid] || 1) + 1;
+                AA[pair[0]] = AA[pair[1]] = cid;
+            }
+            return CC;
+        }, [])
+        .reduce(function(sum, peopleFromCountry) {
+            return sum - P_Nby2(peopleFromCountry);
+        }, P_Nby2(n));
 
     // https://en.wikipedia.org/wiki/Binomial_coefficient#Multiplicative_formula
     // n!/2*(n - 2)! - n0!/2(n0 - 2)! - n1!/2(n1 - 2)! - ...
@@ -84,10 +100,6 @@ function journeyToMoon(n, astronaut) {
     function P_Nby2(n) {
         return n * (n - 1) / 2;
     }
-
-    return CC.reduce(function(c, count) {
-        return c - P_Nby2(count);
-    }, P_Nby2(n));
 }
 
 function main() {
